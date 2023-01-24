@@ -1,0 +1,306 @@
+---
+title: "Political Efficacy in China and Mexico"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+In 2002, the World Health Organization conducted a survey of two
+provinces in China and three provinces in Mexico. This
+exercise is based on: 
+
+> Gary King, Christopher J. L. Murray, Joshua A. Salomon, and Ajay Tandon. (2004). '[Enhancing the Validity and Cross-Cultural Comparability of Measurement in Survey Research.]( https://doi.org/10.1017/S000305540400108X)' *American Political Science Review*, 98:1 (February), pp.191-207.
+  
+In this exercise we analyze respondents' views on their own political efficacy.  First, the following self-assessment question was asked.
+
+>  How much say do you have in getting the government to address issues that interest you?
+>
+>  (5) Unlimited say, (4) A lot of say, (3) Some say, (2) Little say, (1) No say at all.
+
+After the self-assessment question, three vignette questions were asked.
+
+>  [Alison] lacks clean drinking water. She and her neighbors are supporting an opposition candidate in the forthcoming elections that has promised to address the issue. It appears that so many people in her area feel the same way that the opposition candidate will defeat the incumbent representative.
+>
+>  [Jane] lacks clean drinking water because the government is pursuing an industrial development plan. In the campaign for an upcoming election, an opposition party has promised to address the issue, but she feels it would be futile to vote for the opposition since the government is certain to win.
+>
+>  [Moses] lacks clean drinking water. He would like to change this, but he can't vote, and feels that no one in the government cares about this issue. So he suffers in silence, hoping something will be done in the future.
+
+The respondent was asked to assess each vignette in the same manner as the self-assessment question.
+
+>  How much say does ['name'] in getting the government to address issues that interest [him/her]?
+>
+>  (5) Unlimited say, (4) A lot of say, (3) Some say, (2) Little say, (1) No say at all.
+
+where ['name'] was replaced with either Alison, Jane, or Moses.
+
+The data set we analyze `vignettes.csv` contains the following variables:
+
+-------------------------------------------------------------------------------
+ Name                 Description
+ -------------------- ---------------------------------------------------------
+ `self`               Self-assessment response 
+ 
+ `alison`             Response on Alison vignette 
+ 
+ `jane`               Response on Jane vignette 
+ 
+ `moses`              Response on Moses vignette
+ 
+ `china`              1 for China and 0 for Mexico  
+ 
+ `age`                 Age of respondent in years 
+------------------------------------------------------------------------------
+
+In the analysis that follows, we assume that these survey responses can be treated as numerical values.  
+For example, `Unlimited say` = 5, and `Little say` = 2.  This approach is not appropriate if, for example, the difference between `Unlimited say` and `A lot of say` is not the same as the difference between `Little say` and `No say at all`.  However, relaxing this assumption is beyond the scope of this chapter.
+
+Useful functions:
+
+* `subset()`
+* `prop.table()`
+* `barplot()`
+* `hist()`
+* `ifelse()`
+* `rbind()`
+
+## Question 1
+
+We begin by analyzing the self-assessment question. 
+
+Load the `vignettes` dataset. Plot the distribution of responses separately for China and Mexico using barplots, where the vertical axis is the proportion of respondents. In addition, compute the mean self-assessment response for each country. (Hint: Subset `vignettes` by country!)
+
+Answer the following questions in complete sentences: 
+
+* Which country's respondents seem to have a higher degree of political efficacy?  
+* Does this seem plausible when Mexican citizens voted out out the Institutional Revolutionary Party (PRI) after more than 70 years or rule and Chinese citizens have not been able to vote in a fair election to date?
+
+## Answer 1
+
+```{r}
+vig <- read.csv("vignettes.csv")
+
+#subsetting data
+china <- subset(vig, vig$china == 1)
+mexico <- subset(vig, vig$china == 0)
+
+##barplot for china's self responses
+chinatable <- prop.table(table(china$self, china$self))
+barplot(chinatable,
+        main = "China's Self-Responses",
+        xlab = "Self-Response Score",
+        ylab = "Proportion of Respondents",
+        col = "lightblue")
+
+mean(china$self)
+
+##barplot for mexico's self responses
+mexicotable <- prop.table(table(mexico$self, mexico$self))
+barplot(mexicotable,
+        main = "Mexico's Self-Responses",
+        xlab = "Self-Response Score",
+        ylab = "Proportion of Respondents",
+        col = "red")
+
+mean(mexico$self)
+```
+China's respondents seem to have a higher degree of political efficacy as there is a higher proportion of respondents that answered 3,4, and 5 than Mexico's respondents. The mean response for China's respondents was 2.6 and the mean response for Mexico's respondents was 1.8. This also shows that China's respondents seem to feel like they have a higher degree of political efficacy. This doesn't seem plausible as Mexican citizens seem to have more political efficacy by being able to vote out a party than Chinese citizens as they haven't had a fair election before.
+
+
+## Question 2
+
+We examine the possibility that any difference in the levels of efficacy between Mexican and Chinese respondents is due to the difference in their age distributions.  
+
+Create histograms for the `age` variable separately for Mexican and Chinese respondents.  Add a blue vertical line representing the median age of the respondents for each country.  In addition, use a Quantile-Quantile plot to compare the two age distributions.  What differences in age distribution do you observe between the two countries?  Answer this by interpreting each plot.
+
+## Answer 2
+
+```{r}
+
+## histogram for Chinese respondents' age
+hist(china$age,
+     main = "China's Age",
+     xlab = "Age",
+     xlim = c(0, 100),
+     col = "lightpink")
+abline(v = median(china$age), col = "blue")
+
+
+## histogram for Mexican respondents' age
+hist(mexico$age, 
+     main = "Mexico's Age",
+     xlab = "Age",
+     xlim = c(0, 100),
+     col = "lightgreen")
+abline(v = median(mexico$age), col = "blue")
+
+##qq plot comparing Chinese respondents' age and Mexican respondents' age
+qqplot(china$age, mexico$age, xlab = "China's Age", ylab = "Mexico's Age", col = "red")
+abline(0,1, lwd = 2)
+
+
+```
+
+When looking at the histograms, the age of Chinese respondents seems to have a wider spread than the age of Mexican respondents. Mexican respondents are more skewed to the right. The median age of Chinese respondents is higher than the median age of Mexican respondents.
+
+The QQ plot shows that in almost all quantiles, the age of Mexican respondents are lower than the age of Chinese respondents. There seems to be a few points in the 4th quantile where the age of Chinese respondents is higher than the age of Mexican respondents. 
+
+In summary, the age of Mexican respondents is lower than the age of Chinese respondents.
+
+## Question 3
+
+One problem of the self-assessment question is that survey respondents may interpret the question differently.  For example, two respondents who choose the same response category may be facing quite different political situations and hence may interpret `A lot of say` differently.  To address this problem, we rank a respondent's answer to the self-assessment question relative to the same respondent's answer to a vignette question.  
+
+Compute the proportion of respondents, again separately for China and Mexico, who ranks themselves (according to the self-assessment question) as having less say in the government's decisions than Moses (the last vignette).  How does the result of this analysis differ from that of the previous analysis?  Give a brief interpretation of the result.
+  
+## Answer 3
+
+```{r}
+## comparison for china
+ranking1 <- ifelse(china$self < china$moses, 1, 0)
+chinamoses <- prop.table(table(ranking1))
+chinamoses
+
+## comparison fo mexico
+ranking2 <- ifelse(mexico$self < mexico$moses, 1, 0)
+mexicomoses <- prop.table(table(ranking2))
+mexicomoses
+```
+56.2% of China's respondents had a self-response that was lower than the response they gave for Moses (someone who has little political efficacy). 24.9% of Mexico's respondents had a self-response that was lower than the response they gave for Moses.
+
+This changes the analysis as before China's respondents seemed to feel like they had more political efficacy than Mexico's respondents. However, now it seems that Mexico's respondents feel they have more political efficacy because more Mexico's respondents had higher responses than what their responses were to Moses vignette than China's respondents. These findings are consistent with the knowledge that China's respondents have not voted in a fair election and Mexico's respondents were able to vote out the PRI party. 
+
+
+## Question 4
+  
+Restrict the `vignettes` data to survey respondents who ranked these three vignettes in the expected order (i.e., `Alison` $\ge$ `Jane` $\ge$ `Moses`). Call this subsetted data `cvig`. Now create a new variable in `cvig` called `ranking` that represents how respondents rank themselves relative to each vignette.  This variable should be equal to 1 if a respondent ranks themself lower than `Moses`, 2 if ranked the same as `Moses` or higher than `Moses` but lower than `Jane`, 3 if ranked the same as `Jane` or higher than `Jane` but lower than `Alison`, and 4 if ranked as high as `Alison` or higher.
+
+Create the barplots of this new variable as in Question 1.  The vertical axis should represent the proportion of respondents for each response category. Also, compute the mean value of this new variable separately for China and Mexico.  Give a brief interpretation of the result by comparing these results with those obtained in Question 1.
+
+## Answer 4
+
+```{r}
+cvig <- subset(vig, (vig$alison >= vig$jane) & (vig$jane >= vig$moses))
+
+## creating a new variable
+cvig$ranking <- NA
+cvig$ranking[cvig$self < cvig$moses] <- 1
+cvig$ranking[cvig$jane > cvig$self & cvig$self >= cvig$moses] <- 2
+cvig$ranking[cvig$alison > cvig$self & cvig$self >= cvig$jane] <- 3
+cvig$ranking[cvig$self >= cvig$alison] <- 4
+
+cvigmexico <- subset (cvig, cvig$china == 0)
+cvigchina<- subset (cvig, cvig$china == 1)
+
+
+cvigrankmexico <- prop.table(table(cvigmexico$ranking))
+
+cvigrankchina <- prop.table(table(cvigchina$ranking))
+
+##bar graph for Mexico
+barplot(cvigrankmexico,
+        main = "Mexico Rankings",
+        xlab = "Ranking",
+        ylab = "Proportion of Respondents",
+        ylim = c(0, 0.5),
+        names.arg = c("< Moses", "Moses < < Jane", "Jane < < Alison", "Alison =<"),
+        col = "lightblue")
+
+##bar graph for China
+barplot(cvigrankchina,
+        main = "China Rankings",
+        xlab = "Ranking",
+        ylab = "Proportion of Respondents",
+        ylim = c(0,0.5),
+        names.arg = c("< Moses", "Moses < < Jane", "Jane < < Alison", "Alison =<"),
+        col = "mediumvioletred")
+
+mean(cvigmexico$ranking)
+mean(cvigchina$ranking)
+
+
+```
+
+When comparing respondents' self responses to what they rated the vignettes, it seems that Mexican respondents feel that they have more political efficacy than Chinese respondents. There is a larger proportion of Mexican respondents were their self-response ranking is higher than the ranking they gave Alison or Jane when compared to Chinese respondents. There is a larger proportion of Chinese respondents were their self-response ranking is lower than the ranking they gave Moses when compared to Mexican respondents. 
+
+The mean for these comparisons for Mexican respondents is 2.9, and the mean for these comparisons for Chinese respondents is 2.2. This shows that Mexican respondents feel they have a higher degree of political efficacy while taking into account the different interpretations of the survey. 
+
+This is the complete opposite of the results obtained in Question 1. In Question 1, the data seemed to be saying that China's respondents felt like they had a higher degree of political efficacy than Mexican respondents. 
+
+## Question 5
+
+Is the problem identified above more or less severe among older respondents when compared to younger ones? Consider the previous question for those who are 40 years or older and those who are younger than 40 years. What are your conclusions between these two groups of respondents? Relate your discussion to your finding for Question 2.
+
+Hint: First, subset `cvig` for respondents above and below age 40 for each country. Then create barplots of each country such that we can see the distribition of respondents' self assessment above and below 40. Do the same by creating barplots of each country with the distribution of respondents' ranking above and below 40. 
+
+## Answer 5
+
+```{r}
+## subset for china
+china40 <- subset(cvigchina, cvigchina$age >= 40)
+chinay40 <- subset(cvigchina, cvigchina$age < 40)
+
+## subset for mexico
+mexico40 <- subset(cvigmexico, cvigmexico$age >= 40)
+mexicoy40 <- subset(cvigmexico, cvigmexico$age <40)
+
+
+## bar graph for china's self responses
+chinaselfgraphs <-rbind(prop.table(table(china40$self)), prop.table(table(chinay40$self)))
+barplot(chinaselfgraphs,
+        main = "China's Self Responses Separated by Age",
+        xlab = "Self Response",
+        ylab = "Proportion of Respondents",
+        ylim = c(0, 0.6),
+        legend.text = c("Equal or Over 40", "Under 40"),
+        names.arg = c("No Say at all", "Little say", "Some say", "A lot of say", "Unlimited say"),
+        col = c("salmon", "lightblue"),
+        beside = T)
+
+
+## bar graph for china's rankings
+chinarankgraphs <-rbind(prop.table(table(china40$ranking)), prop.table(table(chinay40$ranking)))
+barplot(chinarankgraphs,
+        main = "China's Rankings Separated by Age",
+        xlab = "Ranking",
+        ylab = "Proportion of Respondents",
+        ylim = c(0, 0.6),
+        legend.text = c("Equal or Over 40", "Under 40"),
+        names.arg = c("< Moses", "Moses < < Jane", "Jane < < Alison", "Alison =<"),
+        col = c("lavender", "seagreen1"),
+        beside = T)
+
+## bar graph for mexico's self responses
+mexselfgraphs <- rbind(prop.table(table(mexico40$self)), prop.table(table(mexicoy40$self)))
+barplot(mexselfgraphs,
+        main = "Mexico's Self Responses Separated by Age",
+        xlab = "Self Response",
+        ylab = "Proportion of Respondents",
+        ylim = c(0, 0.6),
+        legend.text = c("Equal or Over 40", "Under 40"),
+        names.arg = c("No Say at all", "Little say", "Some say", "A lot of say", "Unlimited say"),
+        col = c("hotpink", "orange"),
+        beside = T)
+
+## bar graph for mexico's ranking
+mexrankgraphs <- rbind(prop.table(table(mexico40$ranking)), prop.table(table(mexicoy40$ranking)))
+barplot(mexrankgraphs,
+        main = "Mexico's Rankings Separated by Age",
+        xlab = "Ranking",
+        ylab = "Proportion of Respondents",
+        ylim = c(0, 0.6),
+        legend.text = c("Equal or Over 40", "Under 40"),
+        names.arg = c("< Moses", "Moses < < Jane", "Jane < < Alison", "Alison =<"),
+        col = c("mediumorchid1", "darkblue"),
+        beside = T)
+
+
+```
+
+The problem is equally severe for between the age groups for Mexican respondents. There is a large proportion of Mexican respondents that have a self-response of "no say at all". When looking at the rankings of Mexico respondents, the majority of them are between Jane and Alison. However, from Question 2, we also know that overall age of Mexican respondents is generally younger than Chinese respondents. This why it seems like there is a more significant shift from the self-responses to the rankings for Mexico than for China. Younger Mexican respondents may be more critical of their political efficacy and more critical of politics as they grew up more exposed to US ideals. 
+
+For China, there is a fairly even distribution of proportions for China's self-responses although the "unlimited say" category was lower for both age groups. Both age groups had the largest proportion for the "some say" category. When looking at the rankings of Chinese respondents, a large proportion of respondents had a lower self-response score than Moses. 
+
+Overall, it seems that Mexican respondents underestimate their political efficacy in self-responses and Chinese respondents overestimate their political efficacy in self-responses.
+
+
+
